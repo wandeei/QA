@@ -1,0 +1,19 @@
+<div class="list-group questions-window">
+    <div class="list-group-header">
+        <h4>Questions User Asked</h4>
+        <hr>
+    </div>
+</div>
+
+<div class="load-btn">
+    <div class="loading-1">
+        <img src="/static/images/loading-2.gif" alt="" class="loading"> Loading...
+    </div>
+    <a onclick='load_more(3)' class='btn-load'><span class='fa fa-refresh'></span> Load More</a>
+</div>
+
+<script>
+    $('.loading-1').attr('src', loading1src).hide();
+    nextQuestionPage = original_getquestions_url;
+    load_questions(user);
+</script>

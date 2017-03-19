@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block body %}
+    {% load staticfiles %}
+    <div class="container">
+        <div class="row" style="margin-top: 50px;">
+            <div class="col-lg-9">
+                <div class="card" style="margin-top: 70px; width: 100%; padding-bottom: 20px;">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <div class="picture-div" style="margin-top: -40px; margin-right: 30px;">
+                                <img src="{{ topic.image_name.url }}" alt="{{ topic.created_by.first_name }}" class="topic-picture" >
+                                <!--<div class="upld-btn"><span class="glyphicon glyphicon-camera btn btn-default btn-xs"> Change Photo</span></div>-->
+                            </div>
+                        </div>
+                        <div class="col-lg-9">
+                            <h4 class="topic-name">{{ topic.title }}</h4>
+                            <small class="topic-details">{{ topic.desc }}</small>
+                            <ul class="btn-list">
+                                {% if is_following %}
+                                    <li><div class="btn btn-default topic-follow-{{ topic.id }}" onclick="unfollow_topic({{ topic.id }})">- unfollow</div></li>
+                                {% else %}
+                                    <li><div class="btn btn-default topic-follow-{{ topic.id }}" onclick="follow_topic({{ topic.id }})">+ follow</div></li>
+                                {% endif %}
+                                <li><a href="#">Turn on Notifications</a></li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4">
+                        <h5>users with common interest</h5>
+                        <hr/>
+                        <ul class="list-group common-user-group">
+
+                        </ul>
+                        <div class="loading-1-users">Loading...</div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="post"style="width: 100%;">
+                            <h5>Most Recent Answers in {{ topic.title }}</h5>
+                            <hr/>
+                            <!--Post enters here-->
+                        </div>
+                        <div class="load-btn">
+                            <div class="loading-1">
+                                <img src="/static/images/loading-2.gif" alt="" class="loading"> Loading...
+                            </div>
+                            <a onclick='load_more(5)' class='btn-load'><span class='fa fa-refresh'></span> Load More</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 related-col">
+                <h5>Other Topics You might be interested in</h5>
+                <hr/>
+                <ul class="other-topics">
+                    <!---- Topics go in here -->
+                </ul>
+                <div class="loading-1">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'scripts/jquery.min.js' %}"></script>
+    <script src="{% static 'scripts/bootstrap.min.js' %}"></script>
+    <script>
+        var csrftoken = '{{ csrf_token }}';
+        var user = '{{ user }}';
+        var req_user = '';
+        var topic_load_url = '/topics/recent_answers/?topic={{ topic.id }}';
+        var related_users_load_url = '/topics/common_interest_users/?topic={{ topic.id }}'
+    </script>
+    <script src="{% static 'scripts/custom.js' %}"></script>
+    <script>
+        $('.btn-load').hide();
+        $(document).ready(function(){
+            loadTopicAnswers();
+            loadRelatedTopics();
+            loadUsersWithCommonInterest();
+        });
+    </script>
+
+{% endblock %}
+

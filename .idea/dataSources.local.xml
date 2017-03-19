@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal">
+    <data-source name="SQLite - Quelock" uuid="f56f649f-467e-4dac-b0ab-9e46f7abb117">
+      <secret-storage>master_key</secret-storage>
+    </data-source>
+  </component>
+</project>

@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% block title %}
+    {{ req_user.user.first_name }} {{ req_user.user.last_name }} - Quelock
+{% endblock %}
+{% load static %}
+{% block body %}
+    <div class="container">
+        <div class="row" style="margin-top: 50px;">
+            <div class="col-lg-9 col-md-12 col-sm-12">
+                {{ info }}
+                <div class="card" style="margin-top: 110px; width: 100%; line-height: 25px; border-top: none;">
+                    <div class="picture-div" style="float: left; margin-top: -80px; margin-right: 30px;">
+                        <img src="{% static 'images/user.png' %}" alt="{{ req_user.display_picture }}" class="profile-picture" style="margin-bottom: 15px;">
+                        {% if user == req_user.user %}
+                            {#                                <div class="upld-btn"><a class="glyphicon glyphicon-camera btn btn-default btn-xs" data-target="#myModal"> Change Photo</a></div>#}
+                            <div class="upld-btn"><a href="{{ req_user.user.username }}/update" class="fa fa-edit btn btn-default btn-xs">  Edit Profile</a></div>
+                        {% endif %}
+                    </div>
+
+
+                    <div class="photo-right-col" style="margin-left: 20px; padding: 10px;">
+                        <h4 class="user-name">{{ req_user.user.first_name }} {{ req_user.user.last_name }}
+                            {% if user.is_authenticated %}
+                                {% if follows_back %}
+                                    <span class="badge">FOLLOWS YOU</span>
+                                {% endif %}
+                            {% endif %}
+                        </h4>
+                        {% if req_user.bio != None or req_user.bio != ""%}
+                            <span class="fa fa-briefcase"></span>
+                            <span class="bio"> {{ req_user.bio }}</span>
+                        {% endif %}
+
+                        {% if req_user.college != None or req_user.college != "NA"%}
+                            {% if req_user.works != None %}
+                                </br><span class="fa fa-graduation-cap"></span>
+                            {% else %}
+                                </br><span class="fa fa-university"></span>
+                            {% endif %}
+                            <span class="bio"> {{ req_user.college }}</span>
+                        {% endif %}
+
+                        {% if req_user.lives != None or req_user.lives != "" %}
+                            <br>
+                            <span class="fa fa-map-marker"></span>
+                            <span class="bio"> {{ req_user.lives }}</span>
+                        {% endif %}
+
+                        {% if user.is_authenticated %}
+                            {% if user != req_user.user %}
+                                <ul class="btn-list" style="list-style-type: none; display: block;">
+                                    {% if is_following %}
+                                        <li><a onclick="unfollow({{ req_user.user.id }})" class="btn btn-default follow"> - unfollow</a></li>
+                                    {% else %}
+                                        <li><a onclick="follow({{ req_user.user.id }})" class="btn btn-default follow"> + follow </a></li>
+                                    {% endif %}
+                                </ul>
+                            {% endif %}
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <h4>Feeds</h4>
+                        <hr/>
+                        <ul class="list-group">
+                            <a onclick="load_answers_tab()" href="#answers" data-toggle="tab"><li class="list-group-item ans active">Answers <span class="badge"> {{ no_of_answers }}</span></li></a>
+                            <a onclick="load_questions_tab()" href="#questions" data-toggle="tab"><li class="list-group-item que">Questions <span class="badge"> {{ no_of_questions }}</span></li></a>
+                            <a onclick="load_followers_tab()" href="#followers" data-toggle="tab"><li class="list-group-item folr">Followers <span class="badge"> {{ req_user.get_no_of_followers }}</span></li></a>
+                            <a onclick="load_following_tab()" href="#followings" data-toggle="tab"><li class="list-group-item foln">Followings <span class="badge"> {{ req_user.get_no_of_following }}</span></li></a>
+                        </ul>
+                    </div>
+                    <div class="col-lg-9 col-md-12 col-sm-12">
+                        <div class="tab-content">
+                            <div class="tab-pane fade in active" id="answers">
+                                <div class="answers">
+                                    <!--Post here-->
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="followings">
+                                <div class="loading-image">
+                                    <img src="{% static 'images/loading.gif' %}" class='loading-icon' alt="" style="margin: 0px auto;">
+                                </div>
+                                <div class="following">
+
+                                </div>
+
+                            </div>
+
+                            <div class="tab-pane fade" id="followers">
+                                <div class="loading-image">
+                                    <img src="{% static 'images/loading.gif' %}" class='loading-icon' alt="">
+                                </div>
+                                <div class="followers">
+
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="questions">
+                                <div class="loading-image">
+                                    <img src="{% static 'images/loading.gif' %}" class='loading-icon' alt="">
+                                </div>
+                                <div class="questions">
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-3" >
+                <div>
+                    <h5>User Details</h5>
+                    <hr/>
+                    {% if req_user.works != 'NA' %}
+                        <h5>Worked At</h5>
+                        <div class="working-place">{{ req_user.works }}</div>
+                        <br>
+                    {% endif %}
+                    {% if req_user.answer_views != 'NA' %}
+
+                        <br>
+                    {% endif %}
+                    {% if user == req_user.user %}
+                        <h5>Topics you follow</h5>
+                        <hr>
+                        <ul class="list-group common-user-group topic-explore-list">
+
+                        </ul>
+                    {% else %}
+                        <h5>Topics followed by {{ req_user.user.first_name }} that you don't follow</h5>
+                        <hr>
+                        <ul class="list-group common-user-group topic-explore-list">
+
+                        </ul>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'scripts/jquery.min.js' %}"></script>
+    <script async src="{% static 'scripts/bootstrap.min.js' %}"></script>
+    <script>
+        var user = '{{ user }}';
+        var req_user = '{{ req_user.user }}'
+        var csrftoken = '{{ csrf_token }}';
+        var loading1src = '{% static 'images/loading1.gif' %}'
+        var dp_url = '{{ req_user.get_dp_url }}';
+        var img_url = '{{ req_user.display_picture }}';
+        var is_loggedin = '{{ user.is_authenticated }}';
+    </script>
+
+    <script src="{% static 'scripts/custom.js' %}"></script>
+    <script>
+        $(document).ready(
+                function() {
+                    loadProfilePicture();
+                    load_answers_tab();
+                    loadTopicsThatUserFollows();
+                }
+        );
+
+        function load_answers_tab(){
+            $('.loading-image').show();
+            $('.answers').load('{% static 'html/answer.html' %}')
+            $('.loading-image').hide();
+        }
+
+
+        function load_following_tab(){
+            $('.loading-image').show();
+            $('.following').load('{% static 'html/following.html' %}')
+            $('.loading-image').hide();
+        }
+
+        function load_followers_tab(){
+            $('.loading-image').show();
+            $('.followers').load('{% static 'html/followers.html' %}')
+            $('.loading-image').hide();
+        }
+
+        function load_questions_tab(){
+            $('.loading-image').show();
+            $('.questions').load('{% static 'html/questions.html' %}')
+            $('.loading-image').hide();
+        }
+
+        //Load the profile photo if it exists
+        function loadProfilePicture() {
+            if(img_url != 'NA'){
+                $('.profile-picture').attr('src', dp_url);
+            }
+        }
+    </script>
+
+
+{% endblock %}

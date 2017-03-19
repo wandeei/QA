@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block title %}{{ answer.writer.user.first_name }} {{ answer.writer.user.last_name }}'s answer to
+    {{ answer.question.title }}{% endblock %}
+{% block body %}
+    {% load staticfiles %}
+      <style>img{
+        overflow: hidden;
+      }
+    </style>
+    <div class="container">
+        {#        <div class="card" style="margin-top: 70px;">#}
+        {#            <div class="answer">#}
+        {#                <div class='card answer-box' style='width: 100%; padding: 15px;'>#}
+        <div class="answer" style="margin-top: 70px;">
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class='row'>
+                        <h2><a href="/questions/{{ answer.question.slug }}">{{ answer.question.title }}</a></h2>
+                        <hr>
+                        <div class='col-lg-1'>
+                            <img src='{{ answer.writer.get_dp_url }}' alt='{{ answer.writer.user.first_name }}'
+                                 style='float: left' class='commenter-dp'>
+                        </div>
+                        <div class='col-lg-11' style='line-height: 25px;'>
+                            <span class='commenter-name'><a
+                                    href="/profile/{{ answer.writer.user.username }}">{{ answer.writer.user.first_name }} {{ answer.writer.user.last_name }}</a></span>
+                            <span class='bio'>{{ answer.writer.bio }}</span>
+                            <span class='pull-right badge'>{{ answer.writer.profile_no_of_views }}</span>
+                            <br/><span
+                                class='total-user-views glyphicon glyphicon-eye-open'> {{ answer.no_of_views }} </span>
+                            views
+                            <br>
+                        </div>
+                    </div>
+                    <br>
+
+                    <div class='answer-content'>
+                        {{ answer.body|safe }}
+                    </div>
+                    <br>
+                    <p>
+                        {% if answer.no_of_upvotes != 0 %}
+                            {{ answer.no_of_upvotes }} upvoted this answer &bullet; <a href="#">view upvotes</a>
+                        {% endif %}
+                    </p>
+                    <p>
+                        {% if user.is_authenticated %}
+                            {% if answer.writer.user == user %}
+                                    <span class='fa fa-chevron-up'></span>  {{ answer.no_of_upvotes }}
+                                    <span style='margin-right: 10px;'></span>
+
+                                    <span class='fa fa-chevron-up'></span>  {{ answer.no_of_downvotes }}
+                                    <span style='margin-right: 10px;'></span>
+                            {% else %}
+                                {% if already_upvoted %}
+                                    <button class='btn btn-default btn-xs upvote-{{ answer.id }}'
+                                            onclick="r_upvote({{ answer.id }})"><span class='fa fa-chevron-up'></span>Upvoted<span
+                                            style='margin-right: 10px;'></span></button>
+                                    <span style='margin-right: 10px;'></span>
+                                {% else %}
+                                    <button class='btn btn-default btn-xs upvote-{{ answer.id }}'
+                                            onclick="upvote({{ answer.id }})"><span class='fa fa-chevron-up'></span>Upvote<span
+                                            style='margin-right: 10px;'></span></button>
+                                    <span style='margin-right: 10px;'></span>
+                                {% endif %}
+
+                                {% if already_downvoted %}
+                                    <button class='btn btn-default btn-xs downvote-{{ answer.id }}'
+                                            onclick="r_downvote({{ answer.id }})"><span
+                                            class='fa fa-chevron-down'></span>Downvoted<span style='margin-right: 10px;'></span></button>
+                                    <span style='margin-right: 10px;'></span>
+                                {% else %}
+                                    <button class='btn btn-default btn-xs downvote-{{ answer.id }}'
+                                            onclick="downvote({{ answer.id }})"><span class='fa fa-chevron-down'></span>Downvote<span style='margin-right: 10px;'></span></button>
+                                    <span style='margin-right: 10px;'></span>
+                                {% endif %}
+                            {% endif %}
+                            {# Bookmark #}
+                            {% if is_bookmarked %}
+                                <span class='btn-group' style='float: right; margin-right: 20px;'>
+                                    {% if user == answer.writer.user %}
+                                        <button class='btn btn-default btn-xs'><a
+                                                href='/answers/edit/?answer={{ answer.id }}'><span
+                                                class='fa fa-edit'></span> Edit</a></button>
+                                    {% endif %}
+                                    <button class='btn btn-primary btn-xs bookmark'
+                                            onclick="unBookmarkAnswer({{ answer.id }})"><span
+                                            class='fa fa-thumb-tack'></span> archived
+                                    </button>
+                                                </span>
+                            {% else %}
+                                <span class='btn-group' style='float: right; margin-right: 20px;'>
+                                                    {% if user == answer.writer.user %}
+                                                        <button class='btn btn-default btn-xs'><a
+                                                                href='/answers/edit/?answer={{ answer.id }}'><span
+                                                                class='fa fa-edit'></span> Edit</a></button>
+                                                    {% endif %}
+                                    <button class='btn btn-primary btn-xs bookmark'
+                                            onclick="bookmarkAnswer({{ answer.id }})"><span
+                                            class='fa fa-thumb-tack'></span> archive
+                                    </button>
+                                                </span>
+                            {% endif %}
+                        {% else %}
+                            <span class='fa fa-chevron-up'></span>  {{ answer.no_of_upvotes }}
+                            <span style='margin-right: 10px;'></span>
+                            <span class='fa fa-chevron-down'></span>  {{ answer.no_of_downvotes }}
+                            <span style='margin-right: 10px;'></span>
+                        {% endif %}
+                    </p>
+                    <hr>
+                    <h3>Comments</h3>
+
+                    <div class="answer-comments card answer-box" style="background-color: #fff; padding: 10px; width: 100%;">
+                        <!-->
+
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <h3>About the Writer</h3>
+                    <hr>
+                    {% if answer.writer.display_picture != None %}
+                        <img src="{{ answer.writer.get_dp_url }}" alt="{{ answer.writer.user.first_name }}"
+                             class="profile-picture-answer">
+                    {% else %}
+                        <img src="{% static 'images/user.png' %}" alt="" class="profile-picture-answer">
+                    {% endif %}
+                    <hr>
+                    <div class="answer-writer-details">
+                        <a href="/profile/{{ answer.writer.user.username }}"><p>{{ answer.writer.user.first_name }} {{ answer.writer.user.last_name }} </a>| <span class="badge">{{ answer.writer.profile_no_of_views }} profile views</span>
+                        {% if answer.writer.works != 'NA' %}
+                            <p> &middot; {{ answer.writer.works }}</p>
+                        {% endif %}
+                        {% if answer.writer.followers != 'NA' %}
+                            {% if answer.writer.followers >= 1 %}
+                                <p> &middot; {{ answer.writer.get_no_of_followers }} followers</p>
+                            {% else %}
+                                <p> &middot; {{ answer.writer.get_no_of_followers }} follower</p>
+                            {% endif %}
+                        {% endif %}
+                        {% if user.is_authenticated %}
+                            {% if user != answer.writer.user %}
+                                {% if is_following %}
+                                    <a onclick="unfollow({{ answer.writer.user.id }})" class="btn btn-default btn-sm follow"> - unfollow</a>
+                                {% else %}
+                                    <a onclick="follow({{ answer.writer.user.id }})" class="btn btn-default btn-sm follow"> + follow </a>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'scripts/jquery.min.js' %}"></script>
+    <script src="{% static 'scripts/bootstrap.min.js' %}"></script>
+    <script src="{% static 'scripts/custom.js' %}"></script>
+    <script>
+        var csrftoken = '{{ csrf_token }}';
+        var user = '{{ user }}';
+        var answer_id = '{{ answer.id }}';
+        $(document).ready(function () {
+            loadComments(answer_id);
+            //$('img').addClass('img-responsive').css('position', 'relative').css('overflow', 'hidden').css('max-width', '100%');
+            $('ul').css('margin-left', '40px');
+            $('ol').css('margin-left', '40px');
+        });
+
+        function loadComment() {
+
+        }
+
+
+    </script>
+
+{% endblock %}
